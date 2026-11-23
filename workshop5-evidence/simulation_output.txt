@@ -1,0 +1,61 @@
+
+===== EV-01 baseline v0 =====
+BS-01 LDR=150 motion=1 -> LED ON
+BS-02 LDR=800 motion=1 -> LED OFF
+BS-02 LDR=299 motion=1 -> LED ON
+BS-02 LDR=300 motion=1 -> LED OFF
+BS-01 LDR=150 motion=0 -> LED OFF
+
+===== EV-02 Part A (v1, USE_CONTROL 0) =====
+LDR=400 default T=300 -> OFF
+LDR=400 after T=500    -> ON
+PA-01 LDR=150 -> ON | LDR=800 -> OFF
+--- boundary on v1, T reset to 300
+LDR=299 -> ON | LDR=301 -> OFF
+
+===== EV-03 TC-04 injection, LDR held 300, motion, N=1, 30 s = 300 loops =====
+v1: changes in 30 s over 20 seeds -> min 137, max 163, mean 150.3; seed1 = 152
+v2: changes in 30 s over 20 seeds -> min 1, max 1, mean 1.0; seed1 = 1
+v1 sample log (first 12 lines, seed 1):
+READY T=300
+> N=1  ->  OK N=1
+ldr=278,T=300,motion=1,led=1,changes=1
+ldr=306,T=300,motion=1,led=0,changes=2
+ldr=324,T=300,motion=1,led=0,changes=2
+ldr=321,T=300,motion=1,led=0,changes=2
+ldr=318,T=300,motion=1,led=0,changes=2
+ldr=274,T=300,motion=1,led=1,changes=3
+ldr=286,T=300,motion=1,led=1,changes=3
+ldr=277,T=300,motion=1,led=1,changes=3
+ldr=301,T=300,motion=1,led=0,changes=4
+ldr=318,T=300,motion=1,led=0,changes=4
+v2 sample log (first 12 lines, seed 1):
+READY T=300
+> N=1  ->  OK N=1
+ldr=295,T=300,motion=1,led=1,changes=1
+ldr=296,T=300,motion=1,led=1,changes=1
+ldr=301,T=300,motion=1,led=1,changes=1
+ldr=305,T=300,motion=1,led=1,changes=1
+ldr=309,T=300,motion=1,led=1,changes=1
+ldr=308,T=300,motion=1,led=1,changes=1
+ldr=304,T=300,motion=1,led=1,changes=1
+ldr=295,T=300,motion=1,led=1,changes=1
+ldr=291,T=300,motion=1,led=1,changes=1
+ldr=291,T=300,motion=1,led=1,changes=1
+v2 last line: ldr=301,T=300,motion=1,led=1,changes=1
+
+===== EV-04 TC-03 invalid input and boundary (v2), TC-05 recovery =====
+> T=abc  ->  ERR range 50-900
+> T=1500  ->  ERR range 50-900
+> T=-5  ->  ERR range 50-900
+> T=  ->  ERR range 50-900
+> T=49  ->  ERR range 50-900
+> T=901  ->  ERR range 50-900
+> hello  ->  ERR unknown
+threshold after invalid commands: 300
+residual limitation: T=500abc -> 500
+v2 LDR=299 -> ON
+v2 LDR=301 -> ON (hysteresis band 300-340: stays ON)
+v2 LDR=341 -> OFF
+TC-05 LDR 300->800 after N=0: LED OFF after 1 loop(s) = 100 ms
+after reset T = 300 (not persisted)
